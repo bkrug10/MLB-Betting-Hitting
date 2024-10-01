@@ -1356,7 +1356,36 @@ for (i in 1:nrow(Batters)) {
 Bets <- Batters %>% 
   mutate(`Hits + Runs + RBIs`=Hits + Runs + RBIs) %>% 
   select(Name, Team, Opp, OppStarter, Hits, TotalBases, RBIs, HR, Runs, `Hits + Runs + RBIs`)
-View(Bets)
+if (Todays_Games$game_type[1]=="R") {
+  View(Bets)
+} else {
+  playoff_bets <- data.frame()
+  stats <- Bets %>% 
+    arrange(desc(TotalBases)) %>% 
+    select(Name, Team, Opp, OppStarter) %>% 
+    mutate(Prop="2+ Total Bases")
+  stats <- head(stats, 1)
+  playoff_bets <- rbind(playoff_bets, stats)
+  stats <- filter(Bets, Name!=playoff_bets$Name[1]) %>% 
+    arrange(desc(Hits)) %>% 
+    select(Name, Team, Opp, OppStarter) %>% 
+    mutate(Prop="1+ Hits")
+  stats <- head(stats, 2)
+  playoff_bets <- rbind(playoff_bets, stats)
+  stats <- Bets %>% 
+    arrange(desc(RBIs)) %>% 
+    select(Name, Team, Opp, OppStarter) %>% 
+    mutate(Prop="1+ RBIs")
+  stats <- head(stats, 1)
+  playoff_bets <- rbind(playoff_bets, stats)
+  stats <- Bets %>% 
+    arrange(desc(Runs)) %>% 
+    select(Name, Team, Opp, OppStarter) %>% 
+    mutate(Prop="1+ Runs")
+  stats <- head(stats, 1)
+  playoff_bets <- rbind(playoff_bets, stats)
+  view(playoff_bets)
+}
 if (is.na(SGPTeam)) {
   SGP <- NA
 } else {
